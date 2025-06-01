@@ -8,6 +8,7 @@ import DashboardLayout from "./components/DashboardLayout.vue";
 import ContactList from "./components/contact/ContactList.vue";
 import UserProfile from "./components/user/UserProfile.vue";
 import UserLogout from "./components/user/UserLogout.vue";
+import ContactCreate from "./components/contact/ContactCreate.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -30,15 +31,19 @@ const router = createRouter({
       path: "/dashboard",
       children: [
         {
-          path: "users/contacts",
+          path: "contacts",
           component: ContactList,
         },
         {
-          path: "profile",
+          path: "contacts/create",
+          component: ContactCreate,
+        },
+        {
+          path: "users/profile",
           component: UserProfile,
         },
         {
-          path: "logout",
+          path: "users/logout",
           component: UserLogout,
         },
       ],

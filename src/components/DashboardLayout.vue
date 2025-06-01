@@ -8,7 +8,7 @@
         class="container mx-auto px-4 py-4 flex justify-between items-center"
       >
         <RouterLink
-          to="/dashboard/users/contacts"
+          to="/dashboard/contacts"
           class="flex items-center hover:opacity-90 transition-opacity duration-200"
         >
           <i class="fas fa-address-book text-white text-2xl mr-3"></i>
