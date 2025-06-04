@@ -22,7 +22,7 @@
       </button>
     </div>
     <div id="searchFormContent" class="mt-4">
-      <form>
+      <form v-on:submit.prevent="handleSearch">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
             <label
@@ -42,6 +42,7 @@
                 name="search_name"
                 class="w-full pl-10 pr-3 py-3 bg-gray-700 bg-opacity-50 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="Search by name"
+                v-model="search.name"
               />
             </div>
           </div>
@@ -63,6 +64,7 @@
                 name="search_email"
                 class="w-full pl-10 pr-3 py-3 bg-gray-700 bg-opacity-50 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="Search by email"
+                v-model="search.email"
               />
             </div>
           </div>
@@ -84,6 +86,7 @@
                 name="search_phone"
                 class="w-full pl-10 pr-3 py-3 bg-gray-700 bg-opacity-50 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="Search by phone"
+                v-model="search.phone"
               />
             </div>
           </div>
@@ -125,11 +128,13 @@
 
     <!-- Contact Card 1 -->
     <div
+      v-for="contact in contacts"
+      :key="contact.id"
       class="bg-gray-800 bg-opacity-80 rounded-xl shadow-custom border border-gray-700 overflow-hidden card-hover animate-fade-in"
     >
       <div class="p-6">
-        <a
-          href="detail_contact.html"
+        <RouterLink
+          :to="`/dashboard/contacts/${contact.id}`"
           class="block cursor-pointer hover:bg-gray-700 rounded-lg transition-all duration-200 p-3"
         >
           <div class="flex items-center mb-3">
@@ -141,39 +146,39 @@
             <h2
               class="text-xl font-semibold text-white hover:text-blue-300 transition-colors duration-200"
             >
-              John Doe
+              {{ contact.first_name }} {{ contact.last_name }}
             </h2>
           </div>
           <div class="space-y-3 text-gray-300 ml-2">
             <p class="flex items-center">
               <i class="fas fa-user-tag text-gray-500 w-6"></i>
               <span class="font-medium w-24">First Name:</span>
-              <span>John</span>
+              <span>{{ contact.first_name }}</span>
             </p>
             <p class="flex items-center">
               <i class="fas fa-user-tag text-gray-500 w-6"></i>
               <span class="font-medium w-24">Last Name:</span>
-              <span>Doe</span>
+              <span>{{ contact.last_name }}</span>
             </p>
             <p class="flex items-center">
               <i class="fas fa-envelope text-gray-500 w-6"></i>
               <span class="font-medium w-24">Email:</span>
-              <span>john.doe@example.com</span>
+              <span>{{ contact.email }}</span>
             </p>
             <p class="flex items-center">
               <i class="fas fa-phone text-gray-500 w-6"></i>
               <span class="font-medium w-24">Phone:</span>
-              <span>+1 (555) 123-4567</span>
+              <span>{{ contact.phone }}</span>
             </p>
           </div>
-        </a>
+        </RouterLink>
         <div class="mt-4 flex justify-end space-x-3">
-          <a
-            href="edit_contact.html"
+          <RouterLink
+            :to="`/dashboard/contacts/${contact.id}/edit`"
             class="px-4 py-2 bg-gradient text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md flex items-center"
           >
             <i class="fas fa-edit mr-2"></i> Edit
-          </a>
+          </RouterLink>
           <button
             class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md flex items-center"
           >
@@ -190,30 +195,30 @@
       class="flex items-center space-x-3 bg-gray-800 bg-opacity-80 rounded-xl shadow-custom border border-gray-700 p-3 animate-fade-in"
     >
       <a
+        v-if="page > 1"
+        v-on:click="() => handleChangePage(page - 1)"
         href="#"
         class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 flex items-center"
       >
         <i class="fas fa-chevron-left mr-2"></i> Previous
       </a>
       <a
+        v-for="value in pages"
+        :key="value"
+        v-on:click="() => handleChangePage(value)"
         href="#"
-        class="px-4 py-2 bg-gradient text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md"
+        :class="[
+          page === value
+            ? 'px-4 py-2 bg-gradient text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md'
+            : 'px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200',
+        ]"
       >
-        1
+        {{ value }}
       </a>
+
       <a
-        href="#"
-        class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200"
-      >
-        2
-      </a>
-      <a
-        href="#"
-        class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200"
-      >
-        3
-      </a>
-      <a
+        v-if="page < totalPage"
+        v-on:click="() => handleChangePage(page + 1)"
         href="#"
         class="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 flex items-center"
       >
@@ -224,7 +229,7 @@
 </template>
 <script setup>
 import { useLocalStorage } from "@vueuse/core";
-import { onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { ContactList } from "../../lib/api/ContactApi";
 import { alertError } from "../../lib/alert";
@@ -235,25 +240,50 @@ const search = reactive({
   email: "",
   phone: "",
 });
-const page = 1;
+const page = ref(1);
+const totalPage = ref(1);
 const contacts = ref([]);
+const pages = ref([]);
+
+watch(totalPage, (value) => {
+  const data = [];
+  for (let i = 1; i <= value; i++) {
+    data.push(i);
+  }
+  pages.value = data;
+});
+
+async function handleChangePage(value) {
+  page.value = value;
+  await fetchContacts();
+}
+
+async function handleSearch() {
+  page.value = 1;
+  await fetchContacts();
+}
 
 async function fetchContacts() {
-  const response = await ContactList(token, {
+  const response = await ContactList(token.value, {
     name: search.name,
     email: search.email,
     phone: search.phone,
-    page: page,
+    page: page.value,
   });
   const responseBody = await response.json();
   console.log(responseBody);
 
   if (response.status === 200) {
     contacts.value = responseBody.data;
+    totalPage.value = responseBody.paging.total_page;
   } else {
     await alertError(responseBody.errors);
   }
 }
+
+onBeforeMount(async () => {
+  await fetchContacts();
+});
 
 onMounted(() => {
   const toggleButton = document.getElementById("toggleSearchForm");
