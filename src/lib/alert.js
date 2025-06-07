@@ -14,3 +14,15 @@ export const alertError = async (message) => {
     text: message,
   });
 };
+
+export const alertConfirm = async (message) => {
+  const result = await Swal.fire({
+    icon: "question",
+    title: "Confirm",
+    text: message,
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  });
+  return result.isConfirmed;
+};

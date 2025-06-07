@@ -9,6 +9,10 @@ import ContactList from "./components/contact/ContactList.vue";
 import UserProfile from "./components/user/UserProfile.vue";
 import UserLogout from "./components/user/UserLogout.vue";
 import ContactCreate from "./components/contact/ContactCreate.vue";
+import ContactEdit from "./components/contact/ContactEdit.vue";
+import ContactDetail from "./components/contact/ContactDetail.vue";
+import AddressCreate from "./components/Address/AddressCreate.vue";
+import AddressEdit from "./components/Address/AddressEdit.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -37,6 +41,22 @@ const router = createRouter({
         {
           path: "contacts/create",
           component: ContactCreate,
+        },
+        {
+          path: "contacts/:id/edit",
+          component: ContactEdit,
+        },
+        {
+          path: "contacts/:id",
+          component: ContactDetail,
+        },
+        {
+          path: "contacts/:id/addresses/create",
+          component: AddressCreate,
+        },
+        {
+          path: "contacts/:id/addresses/:addressId/edit",
+          component: AddressEdit,
         },
         {
           path: "users/profile",

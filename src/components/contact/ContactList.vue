@@ -180,6 +180,7 @@
             <i class="fas fa-edit mr-2"></i> Edit
           </RouterLink>
           <button
+            v-on:click="() => handleDelete(contact.id)"
             class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md flex items-center"
           >
             <i class="fas fa-trash-alt mr-2"></i> Delete
@@ -231,8 +232,8 @@
 import { useLocalStorage } from "@vueuse/core";
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
-import { ContactList } from "../../lib/api/ContactApi";
-import { alertError } from "../../lib/alert";
+import { ContactDelete, ContactList } from "../../lib/api/ContactApi";
+import { alertConfirm, alertError, alertSuccess } from "../../lib/alert";
 
 const token = useLocalStorage("token", "");
 const search = reactive({
@@ -244,6 +245,23 @@ const page = ref(1);
 const totalPage = ref(1);
 const contacts = ref([]);
 const pages = ref([]);
+
+async function handleDelete(id) {
+  if (!(await alertConfirm("Are you sure?"))) {
+    return;
+  }
+
+  const response = await ContactDelete(token.value, id);
+  const responseBody = await response.json();
+  console.log(responseBody);
+
+  if (response.status === 200) {
+    await alertSuccess("Contact deleted successfully!");
+    await fetchContacts();
+  } else {
+    await alertError(responseBody.errors);
+  }
+}
 
 watch(totalPage, (value) => {
   const data = [];

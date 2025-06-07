@@ -33,3 +33,44 @@ export const ContactList = async (token, { name, email, phone, page }) => {
     },
   });
 };
+
+export const ContactDelete = async (token, id) => {
+  return await fetch(`${import.meta.env.VITE_API_PATH}/contacts/${id}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      Authorization: token,
+    },
+  });
+};
+
+export const ContactDetail = async (token, id) => {
+  return await fetch(`${import.meta.env.VITE_API_PATH}/contacts/${id}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: token,
+    },
+  });
+};
+
+export const ContactUpdate = async (
+  token,
+  id,
+  { first_name, last_name, email, phone }
+) => {
+  return await fetch(`${import.meta.env.VITE_API_PATH}/contacts/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      first_name,
+      last_name,
+      email,
+      phone,
+    }),
+  });
+};
