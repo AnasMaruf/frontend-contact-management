@@ -13,11 +13,18 @@ import ContactEdit from "./components/contact/ContactEdit.vue";
 import ContactDetail from "./components/contact/ContactDetail.vue";
 import AddressCreate from "./components/Address/AddressCreate.vue";
 import AddressEdit from "./components/Address/AddressEdit.vue";
+import authGuard from "./middleware/auth";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: "/",
+      component: ContactList,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/",
       component: Layout,
       children: [
         {
@@ -37,38 +44,48 @@ const router = createRouter({
         {
           path: "contacts",
           component: ContactList,
+          meta: { requiresAuth: true },
         },
         {
           path: "contacts/create",
           component: ContactCreate,
+          meta: { requiresAuth: true },
         },
         {
           path: "contacts/:id/edit",
           component: ContactEdit,
+          meta: { requiresAuth: true },
         },
         {
           path: "contacts/:id",
           component: ContactDetail,
+          meta: { requiresAuth: true },
         },
         {
           path: "contacts/:id/addresses/create",
           component: AddressCreate,
+          meta: { requiresAuth: true },
         },
         {
           path: "contacts/:id/addresses/:addressId/edit",
           component: AddressEdit,
+          meta: { requiresAuth: true },
         },
         {
           path: "users/profile",
           component: UserProfile,
+          meta: { requiresAuth: true },
         },
         {
           path: "users/logout",
           component: UserLogout,
+          meta: { requiresAuth: true },
         },
       ],
     },
   ],
 });
+
+router.beforeEach(authGuard);
 
 createApp(App).use(router).mount("#app");
