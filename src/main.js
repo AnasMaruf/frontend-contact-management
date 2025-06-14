@@ -20,11 +20,6 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: ContactList,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: "/",
       component: Layout,
       children: [
         {
