@@ -25,7 +25,7 @@
   </div>
 </template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { reactive } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { ContactCreate } from "../../lib/api/ContactApi";
@@ -33,7 +33,7 @@ import { alertError, alertSuccess } from "../../lib/alert";
 import ContactForm from "../Partials/ContactForm.vue";
 
 const router = useRouter();
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 const contact = reactive({
   first_name: "",
   last_name: "",

@@ -25,7 +25,7 @@
   </div>
 </template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { onMounted, reactive } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { ContactDetail, ContactUpdate } from "../../lib/api/ContactApi";
@@ -42,7 +42,7 @@ const contact = reactive({
   phone: "",
 });
 
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 
 async function handleSubmit() {
   const response = await ContactUpdate(token.value, id, contact);

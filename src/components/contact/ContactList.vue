@@ -174,14 +174,14 @@
   </div>
 </template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { ContactDelete, ContactList } from "../../lib/api/ContactApi";
 import { alertConfirm, alertError, alertSuccess } from "../../lib/alert";
 import ContactCard from "../Partials/ContactCard.vue";
 
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 const search = reactive({
   name: "",
   email: "",

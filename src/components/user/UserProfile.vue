@@ -136,7 +136,7 @@
   </div>
 </template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import {
   UserDetail,
   UserUpdatePassword,
@@ -145,7 +145,7 @@ import {
 import { onBeforeMount, ref } from "vue";
 import { alertError, alertSuccess } from "../../lib/alert";
 
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 const name = ref("");
 const password = ref("");
 const confirm_password = ref("");

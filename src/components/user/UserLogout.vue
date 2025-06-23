@@ -1,12 +1,12 @@
 <template></template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { useRouter } from "vue-router";
 import { UserLogout } from "../../lib/api/UserApi";
 import { alertError } from "../../lib/alert";
 import { onBeforeMount } from "vue";
 
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 const router = useRouter();
 
 async function handleLogout() {

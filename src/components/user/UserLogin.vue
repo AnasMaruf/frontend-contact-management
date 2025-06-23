@@ -84,10 +84,10 @@ import { reactive } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { UserLogin } from "../../lib/api/UserApi";
 import { alertError, alertSuccess } from "../../lib/alert";
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 
 const router = useRouter();
-const token = useLocalStorage("token", null);
+const token = useSessionStorage("token", null);
 const user = reactive({
   username: "",
   password: "",

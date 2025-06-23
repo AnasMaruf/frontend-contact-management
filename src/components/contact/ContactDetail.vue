@@ -124,7 +124,7 @@
   </div>
 </template>
 <script setup>
-import { useLocalStorage } from "@vueuse/core";
+import { useSessionStorage } from "@vueuse/core";
 import { RouterLink, useRoute } from "vue-router";
 import { alertConfirm, alertError, alertSuccess } from "../../lib/alert";
 import { ContactDetail } from "../../lib/api/ContactApi";
@@ -134,7 +134,7 @@ import AddressCard from "../Partials/AddressCard.vue";
 
 const route = useRoute();
 const { id } = route.params;
-const token = useLocalStorage("token", "");
+const token = useSessionStorage("token", "");
 const contact = reactive({
   first_name: "",
   last_name: "",
