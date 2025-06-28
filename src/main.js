@@ -14,6 +14,9 @@ import ContactDetail from "./components/contact/ContactDetail.vue";
 import AddressCreate from "./components/Address/AddressCreate.vue";
 import AddressEdit from "./components/Address/AddressEdit.vue";
 import authGuard from "./middleware/auth";
+import { createPinia } from "pinia";
+
+const pinia = createPinia();
 
 const router = createRouter({
   history: createWebHistory(),
@@ -86,4 +89,4 @@ const router = createRouter({
 
 router.beforeEach(authGuard);
 
-createApp(App).use(router).mount("#app");
+createApp(App).use(pinia).use(router).mount("#app");
