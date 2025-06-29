@@ -104,7 +104,7 @@
             <AddressCard
               v-for="address in addresses"
               :key="address.id"
-              :id="id"
+              :id="id.value"
               :address="address"
             />
           </div>
@@ -128,12 +128,12 @@ import { useSessionStorage } from "@vueuse/core";
 import { RouterLink, useRoute } from "vue-router";
 import { alertConfirm, alertError, alertSuccess } from "../../lib/alert";
 import { ContactDetail } from "../../lib/api/ContactApi";
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { addressDelete, addressList } from "../../lib/api/AddressApi";
 import AddressCard from "../Partials/AddressCard.vue";
 
 const route = useRoute();
-const { id } = route.params;
+const id = computed(() => Number(route.params.id));
 const token = useSessionStorage("token", "");
 const contact = reactive({
   first_name: "",
@@ -147,7 +147,7 @@ async function handleDeleteAddress(addressId) {
   if (!(await alertConfirm("Are you sure?"))) {
     return;
   }
-  const response = await addressDelete(token.value, id, addressId);
+  const response = await addressDelete(token.value, id.value, addressId);
   const responseBody = await response.json();
   // console.log(responseBody);
 
@@ -159,7 +159,7 @@ async function handleDeleteAddress(addressId) {
   }
 }
 async function fetchAddresses() {
-  const response = await addressList(token.value, id);
+  const response = await addressList(token.value, id.value);
   const responseBody = await response.json();
   // console.log(responseBody);
 
@@ -171,7 +171,7 @@ async function fetchAddresses() {
 }
 
 async function fetchContact() {
-  const response = await ContactDetail(token.value, id);
+  const response = await ContactDetail(token.value, id.value);
   const responseBody = await response.json();
   // console.log(responseBody);
 

@@ -57,8 +57,11 @@
 </template>
 <script setup>
 import InputField from "../base/InputField.vue";
-
 const props = defineProps({
+  id: {
+    type: [Number, String],
+    required: true,
+  },
   form: Object,
   onSubmit: Function,
   submitText: String,

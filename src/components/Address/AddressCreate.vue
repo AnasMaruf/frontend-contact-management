@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center mb-6">
     <RouterLink
-      :to="`/dashboard/contacts/${id}`"
+      :to="`/dashboard/contacts/${id.value}`"
       class="text-blue-400 hover:text-blue-300 mr-4 flex items-center transition-colors duration-200"
     >
       <i class="fas fa-arrow-left mr-2"></i> Back to Contact Details
@@ -35,10 +35,12 @@
       </div>
 
       <AddressForm
+        :id="id"
         :onSubmit="handleSubmit"
-        :form="address"
+        :form="addressStore.currentAddress"
         submitText="Create Address"
         submitIcon="fa-plus-circle"
+        :disabled="addressStore.isLoading"
       />
     </div>
   </div>
@@ -46,15 +48,16 @@
 <script setup>
 import { useSessionStorage } from "@vueuse/core";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import { onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { ContactDetail } from "../../lib/api/ContactApi";
-import { addressCreate } from "../../lib/api/AddressApi";
-import { alertSuccess } from "../../lib/alert";
 import AddressForm from "../Partials/AddressForm.vue";
-
+import { useAddressStore } from "../../stores/addressStore";
+import { useAuthStore } from "../../stores/authStore";
 const route = useRoute();
 const router = useRouter();
-const { id } = route.params;
+const addressStore = useAddressStore();
+const authStore = useAuthStore();
+const id = computed(() => Number(route.params.id));
 const token = useSessionStorage("token", "");
 const contact = reactive({
   first_name: "",
@@ -63,31 +66,55 @@ const contact = reactive({
   phone: "",
 });
 
-const address = reactive({
-  street: "",
-  city: "",
-  province: "",
-  country: "",
-  postal_code: "",
+onMounted(async () => {
+  addressStore.resetCurrentAddress();
+  addressStore.clearError();
+  if (!authStore.isLoggedIn) {
+    authStore.initializeAuth();
+  }
+  await fetchContact();
+  console.log("Parent ID:", id.value);
+});
+
+onUnmounted(() => {
+  addressStore.clearError();
 });
 
 async function handleSubmit() {
-  const response = await addressCreate(token.value, id, address);
-  const responseBody = await response.json();
-  console.log(responseBody);
-
-  if (response.status === 200) {
-    await alertSuccess("Address created successfully!");
-    await router.push({
-      path: `/dashboard/contacts/${id}`,
-    });
-  } else {
-    await alertError(responseBody.errors);
+  if (!authStore.isLoggedIn) {
+    await alertError("Please login first");
+    router.push("/login");
+    return;
   }
+
+  try {
+    const result = await addressStore.createAddress(token.value, id.value);
+    console.log("Address creation result:", result);
+
+    if (result.success) {
+      await router.push({
+        path: `/dashboard/contacts/${id.value}`,
+      });
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+  }
+  // const response = await addressCreate(token.value, id, address);
+  // const responseBody = await response.json();
+  // console.log(responseBody);
+
+  // if (response.status === 200) {
+  //   await alertSuccess("Address created successfully!");
+  //   await router.push({
+  //     path: `/dashboard/contacts/${id}`,
+  //   });
+  // } else {
+  //   await alertError(responseBody.errors);
+  // }
 }
 
 async function fetchContact() {
-  const response = await ContactDetail(token.value, id);
+  const response = await ContactDetail(token.value, id.value);
   const responseBody = await response.json();
   console.log(responseBody);
 
@@ -100,9 +127,5 @@ async function fetchContact() {
     await alertError(responseBody.errors);
   }
 }
-
-onMounted(async () => {
-  await fetchContact();
-});
 </script>
 <style scoped></style>

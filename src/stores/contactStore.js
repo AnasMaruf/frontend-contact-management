@@ -99,8 +99,7 @@ export const useContactStore = defineStore("contact", {
           return { success: false, errors: responseBody.errors };
         }
       } catch (error) {
-        this.error = error.message;
-        await alertError("Failed to create contact");
+        await alertError("Failed to create contact: " + error.message);
         return { success: false, error: error.message };
       } finally {
         this.loading = false;
