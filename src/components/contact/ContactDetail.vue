@@ -99,12 +99,11 @@
                 </div>
               </RouterLink>
             </div>
-
             <!-- Address Card 1 -->
             <AddressCard
               v-for="address in addresses"
               :key="address.id"
-              :id="id.value"
+              :id="id"
               :address="address"
             />
           </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center mb-6">
     <RouterLink
-      :to="`/dashboard/contacts/${id.value}`"
+      :to="`/dashboard/contacts/${id}`"
       class="text-blue-400 hover:text-blue-300 mr-4 flex items-center transition-colors duration-200"
     >
       <i class="fas fa-arrow-left mr-2"></i> Back to Contact Details
@@ -25,10 +25,12 @@
           </div>
           <div>
             <h2 class="text-xl font-semibold text-white">
-              {{ contact.first_name }} {{ contact.last_name }}
+              {{ contactStore.currentContact.first_name }}
+              {{ contactStore.currentContact.last_name }}
             </h2>
             <p class="text-gray-300 text-sm">
-              {{ contact.email }} • {{ contact.phone }}
+              {{ contactStore.currentContact.email }} •
+              {{ contactStore.currentContact.phone }}
             </p>
           </div>
         </div>
@@ -53,18 +55,13 @@ import { ContactDetail } from "../../lib/api/ContactApi";
 import AddressForm from "../Partials/AddressForm.vue";
 import { useAddressStore } from "../../stores/addressStore";
 import { useAuthStore } from "../../stores/authStore";
+import { useContactStore } from "../../stores/contactStore";
 const route = useRoute();
 const router = useRouter();
 const addressStore = useAddressStore();
+const contactStore = useContactStore();
 const authStore = useAuthStore();
 const id = computed(() => Number(route.params.id));
-const token = useSessionStorage("token", "");
-const contact = reactive({
-  first_name: "",
-  last_name: "",
-  email: "",
-  phone: "",
-});
 
 onMounted(async () => {
   addressStore.resetCurrentAddress();
@@ -72,8 +69,12 @@ onMounted(async () => {
   if (!authStore.isLoggedIn) {
     authStore.initializeAuth();
   }
+  // Tunggu sampai token muncul
+  if (!authStore.getToken) {
+    console.warn("Token belum tersedia, tidak bisa fetch contact");
+    return;
+  }
   await fetchContact();
-  console.log("Parent ID:", id.value);
 });
 
 onUnmounted(() => {
@@ -88,7 +89,10 @@ async function handleSubmit() {
   }
 
   try {
-    const result = await addressStore.createAddress(token.value, id.value);
+    const result = await addressStore.createAddress(
+      authStore.getToken,
+      id.value
+    );
     console.log("Address creation result:", result);
 
     if (result.success) {
@@ -114,15 +118,11 @@ async function handleSubmit() {
 }
 
 async function fetchContact() {
-  const response = await ContactDetail(token.value, id.value);
+  const response = await ContactDetail(authStore.getToken, id.value);
   const responseBody = await response.json();
-  console.log(responseBody);
 
   if (response.status === 200) {
-    contact.first_name = responseBody.data.first_name;
-    contact.last_name = responseBody.data.last_name;
-    contact.email = responseBody.data.email;
-    contact.phone = responseBody.data.phone;
+    contactStore.setCurrentContact(responseBody.data);
   } else {
     await alertError(responseBody.errors);
   }

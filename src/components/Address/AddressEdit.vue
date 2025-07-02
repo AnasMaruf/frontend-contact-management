@@ -25,10 +25,12 @@
           </div>
           <div>
             <h2 class="text-xl font-semibold text-white">
-              {{ contact.first_name }} {{ contact.last_name }}
+              {{ contactStore.currentContact.first_name }}
+              {{ contactStore.currentContact.last_name }}
             </h2>
             <p class="text-gray-300 text-sm">
-              {{ contact.email }} • {{ contact.phone }}
+              {{ contactStore.currentContact.email }} •
+              {{ contactStore.currentContact.phone }}
             </p>
           </div>
         </div>
@@ -36,9 +38,10 @@
 
       <AddressForm
         :onSubmit="handleSubmit"
-        :form="address"
-        submitText="Create Address"
+        :form="addressStore.currentAddress"
+        submitText="Update Address"
         submitIcon="fa-plus-circle"
+        :disabled="addressStore.isLoading"
       />
     </div>
   </div>
@@ -46,15 +49,22 @@
 <script setup>
 import { useSessionStorage } from "@vueuse/core";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import { onMounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import { ContactDetail } from "../../lib/api/ContactApi";
 import { addressDetail, addressUpdate } from "../../lib/api/AddressApi";
-import { alertSuccess } from "../../lib/alert";
+import { alertError, alertSuccess } from "../../lib/alert";
 import AddressForm from "../Partials/AddressForm.vue";
+import { useAddressStore } from "../../stores/addressStore";
+import { useAuthStore } from "../../stores/authStore";
+import { useContactStore } from "../../stores/contactStore";
 
 const route = useRoute();
 const router = useRouter();
-const { id, addressId } = route.params;
+const id = computed(() => route.params.id);
+const addressId = computed(() => route.params.addressId);
+const addressStore = useAddressStore();
+const contactStore = useContactStore();
+const authStore = useAuthStore();
 const token = useSessionStorage("token", "");
 const contact = reactive({
   first_name: "",
@@ -71,55 +81,78 @@ const address = reactive({
   postal_code: "",
 });
 
-async function handleSubmit() {
-  const response = await addressUpdate(token.value, id, addressId, address);
-  const responseBody = await response.json();
-  console.log(responseBody);
-
-  if (response.status === 200) {
-    await alertSuccess("Address updated successfully!");
-    await router.push({
-      path: `/dashboard/contacts/${id}`,
-    });
-  } else {
-    await alertError(responseBody.errors);
+onMounted(async () => {
+  addressStore.resetCurrentAddress();
+  addressStore.clearError();
+  if (!authStore.isLoggedIn) {
+    authStore.initializeAuth();
   }
+  await fetchContact();
+  await fetchAddress();
+});
+onUnmounted(() => {});
+
+async function handleSubmit() {
+  if (!authStore.isLoggedIn) {
+    await alertError("Please login first");
+    router.push("/login");
+    return;
+  }
+
+  try {
+    const result = await addressStore.addressUpdate(
+      authStore.getToken,
+      id.value,
+      addressId.value
+    );
+    if (result.success) {
+      await router.push({
+        path: `/dashboard/contacts/${id.value}`,
+      });
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+  }
+
+  // const response = await addressUpdate(token.value, id, addressId, address);
+  // const responseBody = await response.json();
+  // console.log(responseBody);
+  // if (response.status === 200) {
+  //   await alertSuccess("Address updated successfully!");
+  //   await router.push({
+  //     path: `/dashboard/contacts/${id}`,
+  //   });
+  // } else {
+  //   await alertError(responseBody.errors);
+  // }
 }
 
 async function fetchContact() {
-  const response = await ContactDetail(token.value, id);
+  const response = await ContactDetail(authStore.getToken, id.value);
   const responseBody = await response.json();
   console.log(responseBody);
 
   if (response.status === 200) {
-    contact.first_name = responseBody.data.first_name;
-    contact.last_name = responseBody.data.last_name;
-    contact.email = responseBody.data.email;
-    contact.phone = responseBody.data.phone;
+    contactStore.setCurrentContact(responseBody.data);
   } else {
     await alertError(responseBody.errors);
   }
 }
 
 async function fetchAddress() {
-  const response = await addressDetail(token.value, id, addressId);
+  const response = await addressDetail(
+    authStore.getToken,
+    id.value,
+    addressId.value
+  );
   const responseBody = await response.json();
   console.log(responseBody);
 
   if (response.status === 200) {
-    address.street = responseBody.data.street;
-    address.city = responseBody.data.city;
-    address.province = responseBody.data.province;
-    address.country = responseBody.data.country;
-    address.postal_code = responseBody.data.postal_code;
+    addressStore.setCurrentAddress(responseBody.data);
   } else {
     await alertError(responseBody.errors);
   }
 }
-
-onMounted(async () => {
-  await fetchContact();
-  await fetchAddress();
-});
 </script>
 <style scoped></style>

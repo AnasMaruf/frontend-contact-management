@@ -74,7 +74,7 @@ export const useAddressStore = defineStore("address", {
       this.error = null;
 
       try {
-        const response = await this.addressUpdate(
+        const response = await addressUpdate(
           token,
           id,
           addressId,
